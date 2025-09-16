@@ -20,7 +20,13 @@ function getDate(){
     console.log(`Current date is: ${moment().format('YYYY/MM/DD HH:mm:ss')}`)
 }
 
+// 5
+function getCurrentWeekDay() {
+    console.log(`Today is: ${moment().format('dddd')}`)
+}
+
 getCurrentDate()
 getCurrentMonth()
 getCurrentYear()
+getCurrentWeekDay()
 getDate()
