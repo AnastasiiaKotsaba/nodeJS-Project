@@ -22,8 +22,54 @@ app.get('/timestamp', (req, res) => {
 
 // Get posts JSON responce
 app.get('/posts', (req, res) => {
-    res.status(200).json(posts)
+    const skip = req.query.skip
+    const take = req.query.take
+
+    let postCopys = [...posts]
+
+    // skip
+	if (skip) {
+		const numSkip = Number(skip)
+		if (isNaN(numSkip)) {
+			res.status(400).json("query skip must be a number")
+			return
+		}
+		postCopys = posts.slice(numSkip)
+	}
+
+    // take
+    if (take) {
+        const numTake = Number(take)
+        if (isNaN(numTake)) {
+            res.status(400).json("query take must be a number")
+            return
+        }
+        postCopys = postCopys.slice(0, numTake)
+    }
+    res.status(200).json(postCopys)
 })
+
+
+app.get("/posts/:id", (req, res) => {
+	const id = Number(req.params.id)
+	
+	if (isNaN(id)){
+		res.status(400).json('id must be a number')
+		return
+	}
+
+    if (!onePost){
+        res.status(404).json('post was not found')
+        return
+    }
+    
+	const onePost = posts.find((post) => {
+		return id === post.id
+	})
+
+	res.status(200).json(onePost)
+})
+
 
 // 1
 function getCurrentDate() {
