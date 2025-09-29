@@ -1,0 +1,38 @@
+[
+    {   
+        "id": 1,
+        "name": "User 1",
+        "email": "userone@gmailcom",
+        "password": "1234"
+    },
+    {
+        "id": 2,
+        "name": "User 2",
+        "email": "usertwo@gmailcom",
+        "password": "243r5"
+    },
+    {
+        "id": 3,
+        "name": "User 3",
+        "email": "userthree@gmailcom",
+        "password": "7654"
+    },
+    {
+        "id": 4,
+        "name": "User 4",
+        "email": "userfour@gmailcom",
+        "password": "8765f"
+    },
+    {
+        "id": 5,
+        "name": "User 5",
+        "email": "userfifth@gmailcom",
+        "password": "876t5"
+    },
+    {
+        "id": 6,
+        "name": "User 6",
+        "email": "usersixth@gmailcom",
+        "password": "7654g"
+    }
+]
