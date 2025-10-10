@@ -1,6 +1,6 @@
-const path = require('path') // для роботи з шляхами
-const fs = require('fs') // для роботи з файловою системою
-const fsPromises = require('fs/promises') // для асинхронної роботи з файловою системою 
+import path from 'path' // для роботи з шляхами
+import fs from "fs" // для роботи з файловою системою
+import { promises as fsPromises} from 'fs' // для асинхронної роботи з файловою системою 
 
 // Створюємо шлях до файлу posts.json (__dirname - це шлях до дитекторії де знаходиться прописана змінна, а posts.json - потрібний файл)
 // path.join - об'єднує задані шляхи в один
@@ -9,10 +9,16 @@ const postPATH = path.join(__dirname, '../../posts.json') // В результа
 // Читаємо файл posts.json, записуємо вміст файлу в обєкт posts 
 // fs.readFileSync - читає синхронно файл (поки файл не буде прочитано, код не виконується)
 // JSON.parse - перетворює JSON в JavaScript об'єкт
-const posts = JSON.parse(fs.readFileSync(postPATH, 'utf-8'))
+const posts: {
+    id: number,
+    name: string,
+    content: string,
+    image: string,
+    likes: number
+}[] = JSON.parse(fs.readFileSync(postPATH, 'utf-8'))
 
 const postService = {
-    getAllPosts: (skip, take) => {
+    getAllPosts: (skip?: number, take?: number) => {
         // Створюємо копію об'єкту posts, щоб не змінювати оригінальний об'єкт (диструктуризація)
         let postCopys = [...posts]
 
@@ -52,7 +58,7 @@ const postService = {
         
     },
 
-    getPostsById: (id) => {
+    getPostsById: (id: number) => {
         // Створюємо умови для випадків, коли id не є числом або коли пост із задананим id не знайдено
         if (isNaN(id)){ // Якщо id не є числом, повертаємо 400 помилку
             return {
@@ -80,7 +86,13 @@ const postService = {
         }
     },
 
-    createPost: async (data) => {
+    createPost: async (data: {
+        id: number,
+        name: string,
+        content: string,
+        image: string,
+        likes: number
+    }) => {
         // Перевіряємо, чи всі потрібні поля заповнені для створення поста
         if (!data || !data.name || !data.content || !data.image) { // У випадку, якщо поле не заповнене, повертаємо 422 помилку клієнтові та повідомляємо про нестачу даних
             return { // перериваємо виконарня коду
@@ -136,4 +148,4 @@ const postService = {
         }
     }
 }
-module.exports = postService
+export default postService

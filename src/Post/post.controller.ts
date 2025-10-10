@@ -1,13 +1,14 @@
-const postService = require("./post.service")
+import type { Request, Response } from 'express'
+import postService from './post.service'
 
 const postController = {
     // Створємо обробку запиту GET за посиланням /posts
-    getAllPosts: (req, res) => {
+    getAllPosts: (req: Request, res: Response) => {
         // Отримуємо вміст query-параметрів skip і take
         // Після задання query-параметрів в адресі, вони доступні в об'єкті req.query
         // Приблизно запит виглядає ось так: http://127.0.0.1:8000/posts?skip=2&take=3
-        const skip = req.query.skip
-        const take = req.query.take
+        const skip = Number(req.query.skip)
+        const take = Number(req.query.take)
 
         const responseData = postService.getAllPosts(skip, take)
 
@@ -22,7 +23,7 @@ const postController = {
     },
 
     // Створюємо обробку запиту GET за посиланням /posts/:id (коли клієнт хоче отримати лише 1 пост по його id)
-    getPostsById: (req, res) => {
+    getPostsById: (req: Request, res: Response) => {
         // Отримуємо id з req.params і перетворюємо його в число
         const id = Number(req.params.id)
 
@@ -38,7 +39,7 @@ const postController = {
     },
 
     // Створюємо обробку запиту POST за посиланням /posts, яка дозволяє створювати новий пост
-    createPost: async (req, res) => {
+    createPost: async (req: Request, res: Response) => {
         try { // Записуємо код в try, щоб у випадку помилки виконати catch (вивести помилку)
             const data = req.body // отримуємо дані з тіла запиту (body) через запит на створення нового поста (POST)
             console.log(data)
@@ -61,4 +62,4 @@ const postController = {
     }
 }
 
-module.exports=postController
+export default postController
