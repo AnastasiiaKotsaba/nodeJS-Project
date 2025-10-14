@@ -1,7 +1,7 @@
 import path from 'path' // для роботи з шляхами
 import fs from "fs" // для роботи з файловою системою
 import { promises as fsPromises} from 'fs' // для асинхронної роботи з файловою системою 
-import { CreatePostData, UpdatePostData } from './post.types'
+import { IPost, CreatePostData, UpdatePostData } from './post.types'
 
 // Створюємо шлях до файлу posts.json (__dirname - це шлях до дитекторії де знаходиться прописана змінна, а posts.json - потрібний файл)
 // path.join - об'єднує задані шляхи в один
@@ -10,13 +10,7 @@ const postPATH = path.join(__dirname, '../../posts.json') // В результа
 // Читаємо файл posts.json, записуємо вміст файлу в обєкт posts 
 // fs.readFileSync - читає синхронно файл (поки файл не буде прочитано, код не виконується)
 // JSON.parse - перетворює JSON в JavaScript об'єкт
-const posts: {
-    id: number,
-    name: string,
-    content: string,
-    image: string,
-    likes: number
-}[] = JSON.parse(fs.readFileSync(postPATH, 'utf-8'))
+const posts: IPost[] = JSON.parse(fs.readFileSync(postPATH, 'utf-8'))
 
 const postService = {
     getAllPosts: (skip?: number, take?: number) => {
@@ -152,6 +146,13 @@ const postService = {
             return { // перериваємо виконарня коду, повертаємо помилку
                 status: "error",
                 message: `Post with id ${id} was not found`
+            }
+        }
+
+        if (typeof data === 'undefined') { // Якщо data не передана
+            return { // перериваємо виконарня коду, повертаємо помилку
+                status: "error",
+                message: "There is a lack of data"
             }
         }
 
