@@ -1,6 +1,7 @@
 import path from 'path' // для роботи з шляхами
 import fs from "fs" // для роботи з файловою системою
 import { promises as fsPromises} from 'fs' // для асинхронної роботи з файловою системою 
+import { CreatePostData, UpdatePostData } from './post.types'
 
 // Створюємо шлях до файлу posts.json (__dirname - це шлях до дитекторії де знаходиться прописана змінна, а posts.json - потрібний файл)
 // path.join - об'єднує задані шляхи в один
@@ -86,13 +87,7 @@ const postService = {
         }
     },
 
-    createPost: async (data: {
-        id: number,
-        name: string,
-        content: string,
-        image: string,
-        likes: number
-    }) => {
+    createPost: async (data: CreatePostData) => {
         // Перевіряємо, чи всі потрібні поля заповнені для створення поста
         if (!data || !data.name || !data.content || !data.image) { // У випадку, якщо поле не заповнене, повертаємо 422 помилку клієнтові та повідомляємо про нестачу даних
             return { // перериваємо виконарня коду
@@ -146,6 +141,33 @@ const postService = {
             status:"success",
             data: post
         }
+    },
+
+    updatePost: async (id: number, data: UpdatePostData) => {
+        const postUpdated = posts.find((post) => {
+            return post.id === id
+        })
+
+        if (!postUpdated) { // Якщо пост не був знайдений
+            return { // перериваємо виконарня коду, повертаємо помилку
+                status: "error",
+                message: `Post with id ${id} was not found`
+            }
+        }
+
+        // Якщо пост знайдено, оновлюємо його дані
+        // Метод Object.assign - копіює всі властивості з об'єкту data в об'єкт postUpdated
+        Object.assign(postUpdated, data)
+
+        // Записуємо оновлений пост в файл posts.json (асинхронно) 
+        await fsPromises.writeFile(postPATH, JSON.stringify(postUpdated))
+        
+        // Повертаємо об'єкт з успішним статусом і даними
+        return {
+            status:"success",
+            data: postUpdated
+        }
+
     }
 }
 export default postService
