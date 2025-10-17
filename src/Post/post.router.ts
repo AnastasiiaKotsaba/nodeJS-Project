@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import postController from './post.controller' // імпорт контролера для постів
+import {postController} from './post.controller' // імпорт контролера для постів
 const router = Router() // створюємо роутер для постів
 
 // Створюємо маршрути (роути) для обробки запитів для постів
