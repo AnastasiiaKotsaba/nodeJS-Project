@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Для того, щоб Prisma створила клієнта (для взаємодії з БД (ORM)), потрібно згенеруватит клієнта
+// Через клієнта ми будемо робити запити до БД (типу CRUD - create, read, update, delete)
+generator client { 
+  provider = "prisma-client-js"  // вказуємо, що генеруємо клієнта для JS/TS
+  output   = "../src/generated/prisma" // вказуємо шлях, куди зберігати згенерованого клієнта
+}
+
+//  Цей блок відповідає за шлях до бази даних і тип бази даних, яку використовуємо (SQLite, PostgreSQL, MySQL)
+datasource db {
+  provider = "sqlite" // тип бази даних
+  url      = env("DATABASE_URL") // шлях до бази даних, який зберігаємо в змінній оточення у файлі .env
+}
+
+// Створюємо модель Post (як таблиця в БД)
+model Post {
+  // назва поля тип даних атрибути (починаються з @ або @@)
+  id Int @id @default(autoincrement()) // поле id, ціле неповторюване значення, яке автоматично збільшується на 1
+
+  name String    
+  content String
+  image String
+  likes Int
+
+  // Створюємо зв'язок manyToMany з моделлю Tag за допомогою моделі TagsOnPosts, де прописані ці зв'язки
+  // Фактично, вказуємо, що кожен пост може мати кілька тегів 
+  tags TagsOnPosts[] 
+}
+
+model Tag {
+  id Int @id @default(autoincrement())
+  name String @unique // атрибут unique вказує на унікальне значення поля
+  
+  // Зв'язок manyToMany з моделлю Post через модель TagsOnPosts
+  // Кожен тег може міститись у декількох постах
+  posts TagsOnPosts[] 
+}
+
+// Створюємо модель, зо пов'язує моделі Post і Tag через зв'язок manyToMany
+model TagsOnPosts {
+  // Створюємо зв'язок з моделлю Post
+  // fields - поле в поточній (Post) моделі, в якому зберігаємо FK (foreign key = postId)
+  // references - поле в іншій (Tag) моделі, з якого береться значення для fields (тобто id тегу)
+  post Post @relation(fields: [postId], references: [id])
+  postId Int
+
+  // Створюємо зв'язок з моделлю Tag
+  tag Tag @relation(fields: [tagId], references: [id])
+  tagId Int
+
+  // Додаємо додаткове поле, яке зберігатиме дату створення тегу із значенням за замовчуванням - поточний час
+  assignedAt DateTime @default(now())
+
+  // Створюємо id із значенням тегу та поста
+  @@id([postId, tagId])
+
+}
+
+// Щоб створити зв'язок manyToMany треба свторити 2 моделі зі зв'язком OneToMany
+// OneToMany, тому що один тег може міститись у багатьох постах і багато постів можуть мати один тег
+// Далі, створити модель, яка буде зберігати ці зв'язки (TagsOnPosts) <--> PostOnTags => Post + Tag (manyToMany)

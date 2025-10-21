@@ -36,6 +36,9 @@ export const postController: IPostControllerContract = {
             const responseData = postService.getAllPosts(skip, take)            
             res.status(200).json(responseData)
         }
+
+        const responseData = postService.getAllPosts(skip, take)            
+        res.status(200).json(responseData)
     },
 
     // Створюємо обробку запиту GET за посиланням /posts/:id (коли клієнт хоче отримати лише 1 пост по його id)
