@@ -1,7 +1,7 @@
 import path from 'path' // для роботи з шляхами
 import fs from "fs" // для роботи з файловою системою
 import { promises as fsPromises} from 'fs' // для асинхронної роботи з файловою системою 
-import { IPost, IPostServiceContract } from './post.types'
+import { Post, PostServiceContract } from './post.types'
 
 // Створюємо шлях до файлу posts.json (__dirname - це шлях до дитекторії де знаходиться прописана змінна, а posts.json - потрібний файл)
 // path.join - об'єднує задані шляхи в один
@@ -10,9 +10,9 @@ const postPATH = path.join(__dirname, '../../posts.json') // В результа
 // Читаємо файл posts.json, записуємо вміст файлу в обєкт posts 
 // fs.readFileSync - читає синхронно файл (поки файл не буде прочитано, код не виконується)
 // JSON.parse - перетворює JSON в JavaScript об'єкт
-const posts: IPost[] = JSON.parse(fs.readFileSync(postPATH, 'utf-8'))
+const posts: Post[] = JSON.parse(fs.readFileSync(postPATH, 'utf-8'))
 
-export const postService: IPostServiceContract = {
+export const postService: PostServiceContract = {
     getAllPosts: (skip, take) => {
         // Створюємо копію об'єкту posts, щоб не змінювати оригінальний об'єкт (диструктуризація)
         let postCopys = [...posts]
@@ -55,7 +55,6 @@ export const postService: IPostServiceContract = {
     },
 
     createPost: async (data) => {
-
         try { // Записуємо код в try, щоб у випадку помилки виконати catch (вивести помилку)
 
             //  Отримуємо останній пост в об'єкті posts, щоб задати новому створеному посту id
@@ -103,8 +102,6 @@ export const postService: IPostServiceContract = {
             console.log(error)
 			return null
         }
-
-
     },
 
     updatePost: async (id, data) => {
@@ -131,4 +128,32 @@ export const postService: IPostServiceContract = {
             return null
         }
     },
+
+    deletePost: async (id) => {
+        try {
+            // Знаходимо потрібний пост для видалення по id
+            const neededPost = posts.find((post) => {
+                return id === post.id
+            })
+
+            // Якщо пост не знайдено, повертаємо null
+            if (!neededPost) return null
+
+            // Видаляємо пост з об'єкту posts за допомогою splice 
+            // splice - видаляє елемент з масиву за індексом і повертає масив з видаленими ел-тами
+            const deletedPost = posts.splice(posts.indexOf(neededPost), 1)[0]
+
+            // Якщо пост не вдалося видалити, повертаємо null
+            if (!deletedPost) return null
+
+            // Записуємо оновлений об'єкт posts в файл posts.json (асинхронно)
+            await fsPromises.writeFile(postPATH, JSON.stringify(posts, null, 2))
+
+            // Повертаємо ивдалений пост 
+            return deletedPost
+        } catch (error) {
+            console.log(error)
+            return null
+        }
+    }
 };

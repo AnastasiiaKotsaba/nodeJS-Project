@@ -1,8 +1,8 @@
 // import type { Request, Response } from 'express'
 import { postService } from './post.service'
-import { CreatePostData, IPostControllerContract, UpdatePostData } from './post.types'
+import { CreatePostChecked, PostControllerContract, UpdatePostChecked } from './post.types'
 
-export const postController: IPostControllerContract = {
+export const postController: PostControllerContract = {
     // Створємо обробку запиту GET за посиланням /posts
     getAllPosts: (req, res) => {
         // Отримуємо вміст query-параметрів skip і take
@@ -67,7 +67,7 @@ export const postController: IPostControllerContract = {
     // Створюємо обробку запиту POST за посиланням /posts, яка дозволяє створювати новий пост
     createPost: async (req, res) => {
         // отримуємо дані з тіла запиту (body) через запит на створення нового поста (POST)
-        const data: CreatePostData = req.body 
+        const data: CreatePostChecked = req.body 
         console.log(data)
 
         // Перевіряємо, чи всі потрібні поля заповнені для створення поста
@@ -107,7 +107,7 @@ export const postController: IPostControllerContract = {
             const id = Number(req.params.id)
 
             // Отримуємо дані з тіла запиту (body) через запит на оновлення поста (PATCH)
-            const data: UpdatePostData = req.body
+            const data: UpdatePostChecked = req.body
             console.log(data)
 
             if (Number.isNaN(id)) { // Якщо id не є числом
@@ -129,6 +129,27 @@ export const postController: IPostControllerContract = {
             } 
 
             res.status(200).json(responseDataUpdate) // повертаємо клієнтові статус 200 (успішне оновлення поста) та сам оновлений пост
+    },
+
+    // Cтворюємо обробку запиту DELETE за посиланням /posts/:id, яке буде видаляти пост по заданому id
+    deletePost: async (req, res) => {
+        // Отримуємо потрібний id поста з req.params і перетворюємо його в число
+        const id = Number(req.params.id)
+
+        if (Number.isNaN(id)) { // Якщо id не є числом
+            res.status(400).json("Id must be a number")
+            return
+        }
+
+        // Викликаємо функцію видалення поста з сервісу, передаючи їй id потрібного поста
+        const responseDataDelete = await postService.deletePost(id)
+
+        if (!responseDataDelete) {
+            res.status(500).json("There was something wrong")
+            return
+        }
+
+        res.status(200).json(responseDataDelete) // повертаємо клієнтові статус 200 (успішне видалення поста) та видалений пост
     }
 }
 

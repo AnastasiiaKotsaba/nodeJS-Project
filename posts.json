@@ -1,9 +1,23 @@
 [
-    {
-        "id": 2,
-        "name": "Post 8",
-        "content": "Eights post",
-        "image": "https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/396e9/MainBefore.jpg",
-        "likes": 56
-    }
+  {
+    "id": 1,
+    "name": "Post 1",
+    "content": "First post",
+    "image": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fru.freepik.com%2Fphotos%2F%25D0%25BF%25D1%2580%25D0%25B8%25D1%2580%25D0%25BE%25D0%25B4%25D0%25B0&psig=AOvVaw2GSJCEXXtu4gYNN_bGdzo6&ust=1761417529052000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCMjOzOK9vZADFQAAAAAdAAAAABAE",
+    "likes": 56
+  },
+  {
+    "id": 3,
+    "name": "Post 3",
+    "content": "Third post",
+    "image": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fru.freepik.com%2Fphotos%2F%25D0%25BF%25D1%2580%25D0%25B8%25D1%2580%25D0%25BE%25D0%25B4%25D0%25B0&psig=AOvVaw2GSJCEXXtu4gYNN_bGdzo6&ust=1761417529052000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCMjOzOK9vZADFQAAAAAdAAAAABAE",
+    "likes": 56
+  },
+  {
+    "id": 4,
+    "name": "Post 4",
+    "content": "Forth post",
+    "image": "https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/396e9/MainBefore.jpg",
+    "likes": 56
+  }
 ]
