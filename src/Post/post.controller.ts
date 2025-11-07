@@ -4,45 +4,24 @@ import { CreatePostChecked, PostControllerContract, UpdatePostChecked } from './
 
 export const postController: PostControllerContract = {
     // Створємо обробку запиту GET за посиланням /posts
-    getAllPosts: (req, res) => {
-        // Отримуємо вміст query-параметрів skip і take
-        // Після задання query-параметрів в адресі, вони доступні в об'єкті req.query
-        // Приблизно запит виглядає ось так: http://127.0.0.1:8000/posts?skip=2&take=3
-        const skip = Number(req.query.skip)
-        const take = Number(req.query.take)
+    getAllPosts: async (req, res) => {
+        // Отримуємо query-параметри і одразу задаємо їм тип або число, або undefined
+        const skip = Number(req.query.skip) || undefined
+        const take = Number(req.query.take) || undefined
 
-        if (skip) {
-            const numSkip = Number(skip) // через те, що req.query повертає рядок, перетворюємо skip в число   
-            
-            if (Number.isNaN(numSkip)) { // у разі помилки, якщо skip не є числом (isNaN), повертаємо 400 помилку
-                res.status(400).json("query skip must be a number") // 400 помилка - помилка на стороні клієнта
-                return; // return = break у Python, вказуємо його, щоб не виконувати подальший код у разі помиоки
-            }
-
-            const responseData = postService.getAllPosts(skip, take)
-
-            // Повідомляємо клієнту про вдале з'єднання з сервером і відправляємо оброблений об'єкт постів
-            // У випадку, якщо не було задано параметрів skip і take, буде відправлено всі пости
-            res.status(200).json(responseData)
+        // Скорочоємо умову, яка перевіряє, чи є переданий параметр числом
+        if ((req.query.skip && Number.isNaN(skip)) || (req.query.take && Number.isNaN(take))) {
+            res.status(400).json("Query params must be numbers")
+            return;
         }
 
-        if (take) { 
-            const numTake = Number(take)
-            if (Number.isNaN(numTake)) {
-                res.status(400).json("query take must be a number") 
-                return; 
-            
-            }
-            const responseData = postService.getAllPosts(skip, take)            
-            res.status(200).json(responseData)
-        }
-
-        const responseData = postService.getAllPosts(skip, take)            
-        res.status(200).json(responseData)
+        const responseData = await postService.getAllPosts(skip, take)
+        res.status(200).json(responseData);
     },
 
+
     // Створюємо обробку запиту GET за посиланням /posts/:id (коли клієнт хоче отримати лише 1 пост по його id)
-    getPostsById: (req, res) => {
+    getPostsById: async (req, res) => {
         // Отримуємо id з req.params і перетворюємо його в число
         const id = Number(req.params.id)
 
@@ -52,13 +31,13 @@ export const postController: PostControllerContract = {
             return;
         }
 
-        const responseIdData = postService.getPostsById(id)
+        const responseIdData = await postService.getPostsById(id)
 
-        if (!responseIdData){ // Якщо поста з таким id не існує, повертаємо 404 помилку
-            res.status(400).json('post was not found')
-            return;
-        }
-    
+        if (!responseIdData){                            
+			res.status(500).json("There was something wrong")
+			return
+		} 
+
         // Повідомляємо клієнту про вдале з'єднання з сервером і відправляємо потрібний пост за вказаним id
         // res.status(200).json(onePost)
         res.status(200).json(responseIdData)
@@ -94,7 +73,8 @@ export const postController: PostControllerContract = {
         // Викликаємо функцію створення поста з сервісу, передаючи їй дані для створення поста
         const responseDataPost = await postService.createPost(data)
 
-        if (!responseDataPost){ // У випадку, якщо пост не створено, повертаємо 500 помилку серверу{
+        // У випадку, якщо пост не створено, повертаємо 500 помилку серверу 
+        if (!responseDataPost){                            
 			res.status(500).json("There was something wrong")
 			return
 		} 

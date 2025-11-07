@@ -30,8 +30,8 @@ export interface PostServiceContract {
     // Типізація методів об'єкта postService
     // Назва методу: (параметр: тип) => те, що повертає фунція
 
-    getAllPosts: (skip?: number, take?: number) => Post[]; // Повертає масив постів (Post[])        
-    getPostsById: (id: number) => Post | null; // Повертає один пост або null (якщо поста не знайдено)
+    getAllPosts: (skip?: number, take?: number) => Promise<Post[]>; // Повертає масив постів (Post[])        
+    getPostsById: (id: number) => Promise<Post | null>; // Повертає один пост або null (якщо поста не знайдено)
     createPost: (data: CreatePostChecked) => Promise<Post | null>; // Повертає Promise (через асинхронність методу), який буде 'розпакований' на створений пост або null (якщо пост не створено)             
     updatePost: (id: number, data: UpdatePostChecked) => Promise<Post | null>;  // Повертає Promise (через асинхронність методу), який буде 'розпакований' на оновлений пост або null (якщо пост не оновлено)
     deletePost: (id: number) => Promise<Post | null>; // Повертає Promise (через асинхронність методу), який буде 'розпакований' на видалений пост або null (якщо пост не видалено)
@@ -51,25 +51,33 @@ export interface PostControllerContract {
     getAllPosts: (
         req: Request<object, Post[] | string, object, { skip?: string; take?: string }>, 
         res: Response<Post[] | string>
-    ) => void
+    ) => Promise<void>
 
     getPostsById: (
         req: Request<{ id: string }, Post | string, object>, 
         res: Response<Post | string>
-    ) => void
+    ) => Promise<void>
 
     createPost: (
         req: Request<object, Post | string, CreatePostChecked>, 
         res: Response<Post | string>
-    ) => void
+    ) => Promise<void>
 
     updatePost: (
         req: Request<{ id: string }, Post | string, UpdatePostChecked>, 
         res: Response<Post | string>
-    ) => void
+    ) => Promise<void>
 
     deletePost: (
         req: Request<{ id: string }, Post | string, object>,
         res: Response<Post | string>
-    ) => void
-}   
+    ) => Promise<void>
+}  
+
+export interface PostRepositoryContract {
+    getAllPosts: (skip?: number, take?: number) => Promise<Post[]>
+    getPostsById: (id: number) => Promise<Post | null>
+    createPost: (data: CreatePostChecked) => Promise<Post | null>
+    updatePost: (id: number, data: UpdatePostChecked) => Promise<Post | null>
+    deletePost: (id: number) => Promise<Post | null>
+}
