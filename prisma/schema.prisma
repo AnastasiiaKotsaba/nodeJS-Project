@@ -64,3 +64,10 @@ model TagsOnPosts {
 // Щоб створити зв'язок manyToMany треба свторити 2 моделі зі зв'язком OneToMany
 // OneToMany, тому що один тег може міститись у багатьох постах і багато постів можуть мати один тег
 // Далі, створити модель, яка буде зберігати ці зв'язки (TagsOnPosts) <--> PostOnTags => Post + Tag (manyToMany)
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  username String
+  password String
+}
