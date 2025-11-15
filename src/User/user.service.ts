@@ -1,29 +1,61 @@
-import { UserServiceContract, CreateUser } from './user.types'
+import { UserServiceContract } from './user.types'
 import { userRepository } from './user.repository'
 import { sign } from 'jsonwebtoken'
+import { ENV } from '../config/env'
 
 export const userService: UserServiceContract = {
-    registration: async (data: CreateUser) => {
-        const createdUser = await userRepository.createUser(data)
-        return createdUser
-    },
+    async login(data) {
+        // Знаходим користувача за email
+		const user = await userRepository.findUserByEmail(data.email);
 
-    login: async (email, password) => {
-        const neededUser = await userRepository.findUserByEmail(email)
+        // Якщо користувача не знайдено, повертаємо повідомлення про помилку
+		if (!user){ return "Not found" } 
 
-        if(!neededUser){
-            return  "not found user"
-        }
+        // Перевіряємо чи співпадають паролі
+		const matchedPasswords = user.password === data.password
 
-        // Створюємо змінну яка перевіряє, чи співпадають паролі при авторизації
-        const matchPassword = password === neededUser.password
+        // Якщо паролі не співпадають, повертаємо повідомлення про помилку
+		if (!matchedPasswords){
+			return "You entered wrong credentials"
+		} 
 
-        if(!matchPassword){
-            return "wrong password"
-        }
-        const token = sign(neededUser.id, "", {
-            expiredAt: "7d"
-        })
-        return neededUser
-    }
-}
+        // Cnструюємо JWT токен
+        // Для sign({по чому саме кодуємо токен}, 'секретний ключ (по чому будемо знаходити)', {хедерси (через скільки днів токен буде не діійсним)})
+		const token = sign({id: user.id}, ENV.SECRET_KEY, {
+		    expiresIn: "7d"
+		})
+
+        // Після успішної авторизації повертаємо токен
+		return {token}
+	},
+
+	async registration(data) {
+        // Знаходим користувача за email
+		const user = await userRepository.findUserByEmail(data.email)
+
+        // Якщо користувач вже існує, повертаємо повідомлення про помилку
+		if (user) {
+			return "User already exists with this email"
+		}
+
+        // Якщо користувача не існує, створюємо нового
+		const createdUser = await userRepository.createUser(data)
+
+        // Токен для кодування даних нового користувача
+		const token = sign({id: createdUser.id}, ENV.SECRET_KEY, { expiresIn: "7d" })
+
+		return {token} 
+	},
+	
+    async me(id) {
+        // Знаходимо користувача по id
+		const me = await userRepository.findUserById(id)
+
+        // Якщо користувача не знайдено, повертаємо повідомлення про помилку
+		if(!me) { return "User was not found" }
+
+        // Повертаємо інформацію про користувача
+		return me
+	}
+};
+

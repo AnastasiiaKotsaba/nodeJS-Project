@@ -1,3 +1,7 @@
-import { envalid } from "envalid"
+import { cleanEnv, str } from "envalid"
 
-const SECRET_KEY = ''
+// Отримуємо змінні оточення з .env та валідируємо їх, щоб ми завжди могли їх використовувати в коді
+// process.env - це об'єкт з усіма змінними оточення
+export const ENV = cleanEnv(process.env, {
+    SECRET_KEY: str()
+})

@@ -30,6 +30,13 @@ model Post {
   // Створюємо зв'язок manyToMany з моделлю Tag за допомогою моделі TagsOnPosts, де прописані ці зв'язки
   // Фактично, вказуємо, що кожен пост може мати кілька тегів 
   tags TagsOnPosts[] 
+
+  // Створюємо зв'язок OneToMany з моделлю User (один користувач може мати багато постів)
+  createdBy User @relation(fields: [userId], references: [id])
+  userId Int
+
+  // Створюємо зв'язок manyToMany з моделлю User через модель PostLike
+  likedBy PostLike[]
 }
 
 model Tag {
@@ -61,13 +68,36 @@ model TagsOnPosts {
 
 }
 
-// Щоб створити зв'язок manyToMany треба свторити 2 моделі зі зв'язком OneToMany
-// OneToMany, тому що один тег може міститись у багатьох постах і багато постів можуть мати один тег
-// Далі, створити модель, яка буде зберігати ці зв'язки (TagsOnPosts) <--> PostOnTags => Post + Tag (manyToMany)
+// Створюємо модель, що пов'язує моделі Post і лайкнуті пости через зв'язок manyToMany
+model PostLike{
+  post Post @relation(fields: [postId], references: [id])
+  postId Int
+
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@id([postId, userId])
+}
 
 model User {
   id Int @id @default(autoincrement())
+
+  firstName String
+  secondName String
+
   email String @unique
-  username String
-  password String
+  avatar String @unique
+  password String @unique
+  
+  isAdmin Boolean @default(false)
+
+  // Зв'язок OneToMany з моделлю Post (один користувач може мати багато постів)
+  createdPosts Post[]
+
+  // Зв'язок manyToMany з моделлю Post через модель PostLike
+  likedPosts PostLike[]
 }
+
+// Щоб створити зв'язок manyToMany треба свторити 2 моделі зі зв'язком OneToMany
+// OneToMany, тому що один тег може міститись у багатьох постах і багато постів можуть мати один тег
+// Далі, створити модель, яка буде зберігати ці зв'язки (TagsOnPosts) <--> PostOnTags => Post + Tag (manyToMany)
