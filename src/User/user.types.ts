@@ -33,17 +33,17 @@ export interface UserControllerContract {
     login: (
         req: Request<object, ResponseToken | {message: string}, UserForLogin, object>,
         res: Response<ResponseToken | {message: string}>
-    ) => Promise<void>
+    ) => void
 
     registration: (
         req: Request<object, ResponseToken | {message: string}, CreateUser, object>,
         res: Response<ResponseToken | {message: string}>
-    ) => Promise<void>
+    ) => void
 
     me: (
-        req: Request<object, UserWithoutPassword | {message: string}, object, object>,
-        res: Response<UserWithoutPassword | {message: string}>
-    ) => Promise<void>,
+        req: Request<object, UserWithoutPassword | {message: string}, object, object, {userId: number}>,
+        res: Response<UserWithoutPassword | {message: string}, {userId: number}>
+    ) => void
 
 }
 

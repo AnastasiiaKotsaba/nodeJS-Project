@@ -49,6 +49,8 @@ export const postController: PostControllerContract = {
         const data: CreatePostChecked = req.body 
         console.log(data)
 
+        
+
         // Перевіряємо, чи всі потрібні поля заповнені для створення поста
         if (!data || !data.name || !data.content || !data.image) { // У випадку, якщо поле не заповнене, повертаємо 422 помилку клієнтові та повідомляємо про нестачу даних
             res.status(422).json('There is a lack of data')

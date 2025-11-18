@@ -2,6 +2,7 @@ import express from 'express' // для створення веб-сервера
 import type { Express } from "express"
 import postRouter from'./Post/post.router' // імпорт роутер для постів
 import tagRouter from'./Tag/tag.router' // імпорт роутер для тегів
+import userRouter from './User/user.router'
 
 
 // Задаємо хост та порт для сервера, щоб вподальшому створити сервер
@@ -14,6 +15,7 @@ const app: Express = express()
 app.use(express.json()) // щоб сервер міг парсити json-файли
 app.use(postRouter) // підключаємо роутер для постів
 app.use(tagRouter) // підключаємо роутер для тегів
+app.use(userRouter) // підключаємо роутер для тегів
 
 
 // Створюємо обробник listen, який 'слухає' запити на сервер
