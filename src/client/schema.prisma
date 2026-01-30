@@ -37,6 +37,9 @@ model Post {
 
   // Створюємо зв'язок manyToMany з моделлю User через модель PostLike
   likedBy PostLike[]
+
+  // Створюємо зв'язок OneToMany з моделлю Comment (один пост може мати багато коментарів)
+  comments Comment[]
 }
 
 model Tag {
@@ -53,31 +56,27 @@ model TagsOnPosts {
   // Створюємо зв'язок з моделлю Post
   // fields - поле в поточній (Post) моделі, в якому зберігаємо FK (foreign key = postId)
   // references - поле в іншій (Tag) моделі, з якого береться значення для fields (тобто id тегу)
-  post Post @relation(fields: [postId], references: [id])
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 
   // Створюємо зв'язок з моделлю Tag
-  tag Tag @relation(fields: [tagId], references: [id])
+  tag   Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
   tagId Int
 
-  // Додаємо додаткове поле, яке зберігатиме дату створення тегу із значенням за замовчуванням - поточний час
-  assignedAt DateTime @default(now())
-
-  // Створюємо id із значенням тегу та поста
   @@id([postId, tagId])
-
 }
 
 // Створюємо модель, що пов'язує моделі Post і лайкнуті пости через зв'язок manyToMany
-model PostLike{
-  post Post @relation(fields: [postId], references: [id])
+model PostLike {
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 
-  user User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
 
   @@id([postId, userId])
 }
+
 
 model User {
   id Int @id @default(autoincrement())
@@ -87,7 +86,7 @@ model User {
 
   email String @unique
   avatar String @unique
-  password String @unique
+  password String 
   
   isAdmin Boolean @default(false)
 
@@ -96,8 +95,25 @@ model User {
 
   // Зв'язок manyToMany з моделлю Post через модель PostLike
   likedPosts PostLike[]
+
+  // Зв'язок OneToMany з моделлю Comment (один користувач може мати багато коментарів)
+  comments Comment[]
 }
 
 // Щоб створити зв'язок manyToMany треба свторити 2 моделі зі зв'язком OneToMany
 // OneToMany, тому що один тег може міститись у багатьох постах і багато постів можуть мати один тег
 // Далі, створити модель, яка буде зберігати ці зв'язки (TagsOnPosts) <--> PostOnTags => Post + Tag (manyToMany)
+
+
+model Comment {
+  id Int @id @default(autoincrement())
+  body String
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId Int
+
+}

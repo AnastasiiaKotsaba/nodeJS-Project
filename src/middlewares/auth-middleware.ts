@@ -8,7 +8,7 @@ import { ENV } from "../config/env"
 // то тепер він спочатку потрапляє сюди, обробляється, а потім вже йде до контролера
 
 // Параметр next потрібен для того, щоб передати запит наступному проміжному обробнику або контролеру
-export function authMiddleware(req: Request, res: Response<object, {userId: number}>, next: NextFunction) {
+export function authMiddleware(req: Request, res: Response<object, {idUser: number}>, next: NextFunction) {
     // Отримуємо інформаціюю про зареєстрованого користувача із заголовків запиту
     const authorization = req.headers.authorization 
 
@@ -40,7 +40,7 @@ export function authMiddleware(req: Request, res: Response<object, {userId: numb
 
         // Додаємо id користувача в об'єкт res.locals
         // res.locals - потрібно для того, щоб контролер міг отримати інформацію про користувача
-        res.locals.userId = decodedToken.id
+        res.locals.idUser = decodedToken.id
         // Відправляємо запит далі до контролера
         next()
 

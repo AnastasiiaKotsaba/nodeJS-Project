@@ -43,7 +43,9 @@ export const userController: UserControllerContract = {
 
 	async me(req, res) {
         // Отримуємо інформацію про користувача за id з розкодованого токена
-		const me = await userService.me(res.locals.userId)
+		const me = await userService.me(res.locals.idUser)
+		
+		console.log(req.params)
 
         // Якщо користувача не знайдено, повертаємо помилку 404
 		if (typeof me === 'string') {

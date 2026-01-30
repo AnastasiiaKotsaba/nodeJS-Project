@@ -7,12 +7,10 @@ export type UserWithoutPassword = Prisma.UserGetPayload<{
     omit: { password: true }
 }>
 
-export type UserForLogin = Prisma.UserGetPayload<{
-    select: {
-        email: true,
-        password: true
-    }
-}>
+export type UserForLogin = {
+	email: string
+	password: string
+}
 export interface AuthenticatedUser {
     id: number
 }
@@ -41,9 +39,9 @@ export interface UserControllerContract {
     ) => void
 
     me: (
-        req: Request<object, UserWithoutPassword | {message: string}, object, object, {userId: number}>,
-        res: Response<UserWithoutPassword | {message: string}, {userId: number}>
-    ) => void
+		req: Request<object, UserWithoutPassword | { message: string }, object, object, {idUser: number}>,
+		res: Response<UserWithoutPassword | { message: string }, {idUser: number}>,
+	) => void
 
 }
 

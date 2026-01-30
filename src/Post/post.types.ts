@@ -4,12 +4,17 @@ import { Prisma } from '../generated/prisma' // імпортуємо Prisma дл
 // Створюємо тип для поста (типізація об'єкта поста та полів) через Prisma типи
 export type Post = Prisma.PostGetPayload<{}>
 
+export type Comment = Prisma.CommentGetPayload<{}>
+
+export type PostLike = Prisma.PostLikeGetPayload<{}>
+
 // Створюємо тип для поста, де вкючені зв'язки з моделлю тегів
 export type PostWithTags = Prisma.PostGetPayload<{
     include: {
         tags: true
     }
 }>
+
 
 // Створюємо тип для створення поста без зв'язків
 export type CreatePost = Prisma.PostCreateInput
@@ -22,6 +27,10 @@ export type UpdatePost = Prisma.PostUpdateInput
 
 export type UpdatePostChecked = Prisma.PostUncheckedUpdateInput
 
+export type CreateComment = Prisma.CommentUncheckedCreateInput
+
+export type IncludeParams = 'comments' | 'likedBy'
+
 // Omit - створює новий тип, виключаючи вказані властивості з існуючого типу
 // Partial - створює новий тип, роблячи всі властивості існуючого типу необов'язковими
 
@@ -31,10 +40,14 @@ export interface PostServiceContract {
     // Назва методу: (параметр: тип) => те, що повертає фунція
 
     getAllPosts: (skip?: number, take?: number) => Promise<Post[]>; // Повертає масив постів (Post[])        
-    getPostsById: (id: number) => Promise<Post | null>; // Повертає один пост або null (якщо поста не знайдено)
+    getPostsById: (id: number, include?: IncludeParams[]) => Promise<Post | null>; // Повертає один пост або null (якщо поста не знайдено)
     createPost: (data: CreatePostChecked) => Promise<Post | null>; // Повертає Promise (через асинхронність методу), який буде 'розпакований' на створений пост або null (якщо пост не створено)             
     updatePost: (id: number, data: UpdatePostChecked) => Promise<Post | null>;  // Повертає Promise (через асинхронність методу), який буде 'розпакований' на оновлений пост або null (якщо пост не оновлено)
     deletePost: (id: number) => Promise<Post | null>; // Повертає Promise (через асинхронність методу), який буде 'розпакований' на видалений пост або null (якщо пост не видалено)
+
+    addCommentToPost: (postId: number, data: CreateComment) => Promise<Comment | null>;
+    addLikeToPost: (postId: number, userId: number) => Promise<PostLike | null>;
+    deleteLikeFromPost: (postId: number, userId: number) => Promise< {count: number} | null>;
 }
 
 export interface PostControllerContract {
@@ -54,7 +67,7 @@ export interface PostControllerContract {
     ) => Promise<void>
 
     getPostsById: (
-        req: Request<{ id: string }, Post | string, object>, 
+        req: Request<{ id: string }, Post | string, object, { include?: IncludeParams[] }>, 
         res: Response<Post | string>
     ) => Promise<void>
 
@@ -72,12 +85,30 @@ export interface PostControllerContract {
         req: Request<{ id: string }, Post | string, object>,
         res: Response<Post | string>
     ) => Promise<void>
+
+    addCommentToPost: (
+        req: Request<{ id: string }, Comment | string, CreateComment>,
+        res: Response<Comment | string>
+    ) => Promise<void>
+
+    addLikeToPost: (
+        req: Request<{ postId: string; userId: string }, Post | string, object>,
+        res: Response<PostLike | string>
+    ) => Promise<void>
+
+    deleteLikeFromPost: (
+        req: Request<{ postId: string; userId: string }, Post | string, object>,
+        res: Response< {count: number} | string>
+    ) => Promise<void>
 }  
 
 export interface PostRepositoryContract {
     getAllPosts: (skip?: number, take?: number) => Promise<Post[]>
-    getPostsById: (id: number) => Promise<Post | null>
+    getPostsById: (id: number, include?: IncludeParams[]) => Promise<Post | null>
     createPost: (data: CreatePostChecked) => Promise<Post | null>
     updatePost: (id: number, data: UpdatePostChecked) => Promise<Post | null>
     deletePost: (id: number) => Promise<Post | null>
+    addCommentToPost: (postId: number, data: CreateComment) => Promise<Comment | null>
+    addLikeToPost: (postId: number, userId: number) => Promise<PostLike | null>
+    deleteLikeFromPost: (postId: number, userId: number) => Promise<{count: number}>
 }

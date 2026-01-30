@@ -25,16 +25,32 @@ export const postController: PostControllerContract = {
         // Отримуємо id з req.params і перетворюємо його в число
         const id = Number(req.params.id)
 
+        // Отримуємо query-параметри і одразу задаємо їм тип або undefined
+        const include = req.query.include ?? []
+
+        if (include !== undefined && !Array.isArray(include) && typeof include !== 'string') {
+            res.status(400).json("Query param must be a string or an object")
+            console.log( typeof include)
+            return
+        }
+
+
+        if (include && !include.includes("comments") && !include.includes("likedBy")) {
+            res.status(400).json("Query params must consist of comments or likedby words")
+            return
+        }
+
+
         // Створюємо умови для випадків, коли id не є числом або коли пост із задананим id не знайдено
         if (isNaN(id)){ // Якщо id не є числом, повертаємо 400 помилку
             res.status(400).json('id must be a number')
-            return;
+            return
         }
 
-        const responseIdData = await postService.getPostsById(id)
+        const responseIdData = await postService.getPostsById(id, include)
 
         if (!responseIdData){                            
-			res.status(500).json("There was something wrong")
+			res.status(404).json("Post not found")
 			return
 		} 
 
@@ -52,7 +68,7 @@ export const postController: PostControllerContract = {
         
 
         // Перевіряємо, чи всі потрібні поля заповнені для створення поста
-        if (!data || !data.name || !data.content || !data.image) { // У випадку, якщо поле не заповнене, повертаємо 422 помилку клієнтові та повідомляємо про нестачу даних
+        if (!data || !data.name || !data.content || !data.image || !data.likes) { // У випадку, якщо поле не заповнене, повертаємо 422 помилку клієнтові та повідомляємо про нестачу даних
             res.status(422).json('There is a lack of data')
             return
         }
@@ -69,6 +85,11 @@ export const postController: PostControllerContract = {
 
         if (typeof data.image !== 'string'){ // Перевіряємо, чи є image рядком
             res.status(422).json('Image must be a string')
+            return
+        }
+
+        if (typeof data.likes !== 'number' || data.likes < 0){ // Перевяіряємо, чи є likes числом і чи не є воно від'ємним
+            res.status(422).json('Likes must be a non-negative number')
             return
         }
 
@@ -132,6 +153,59 @@ export const postController: PostControllerContract = {
         }
 
         res.status(200).json(responseDataDelete) // повертаємо клієнтові статус 200 (успішне видалення поста) та видалений пост
+    },
+
+    addCommentToPost: async (req, res) => {
+        const postId = Number(req.params.id)
+        const data = req.body
+        
+        if (Number.isNaN(postId)) { 
+            res.status(400).json("Id must be a number")
+            return
+        }
+
+        const responseDataComment = await postService.addCommentToPost(postId, data)
+        if (!responseDataComment) {
+            res.status(500).json("There was something wrong")
+            return
+        }
+        res.status(201).json(responseDataComment) 
+    },
+
+    addLikeToPost: async (req, res) => {
+        const postId = Number(req.params.postId)
+        const userId = Number(req.params.userId)
+
+        if (Number.isNaN(postId) || Number.isNaN(userId)) {
+            res.status(400).json("postId and userId must be numbers")
+            return
+        }
+
+        const responseDataLike = await postService.addLikeToPost(postId, userId)
+        if (!responseDataLike) {
+            res.status(500).json("There was something wrong")
+            return
+        }
+
+        res.status(200).json(responseDataLike)
+    },
+
+    deleteLikeFromPost: async (req, res) => {
+        const postId = Number(req.params.postId)
+        const userId = Number(req.params.userId)    
+        
+        if (Number.isNaN(postId) || Number.isNaN(userId)) {
+            res.status(400).json("postId and userId must be numbers")
+            return
+        }
+
+        const responseDataDeleteLike = await postService.deleteLikeFromPost(postId, userId)
+
+        if (!responseDataDeleteLike) {
+            res.status(500).json("There was something wrong")
+            return
+        }
+        res.status(200).json(responseDataDeleteLike)
     }
 }
 

@@ -7,8 +7,8 @@ export const postService: PostServiceContract = {
 		return posts
     },
 
-    getPostsById: async (id) => {
-        const onePost = await postRepository.getPostsById(id)
+    getPostsById: async (id, include) => {
+        const onePost = await postRepository.getPostsById(id, include)
         return onePost
     },
 
@@ -25,5 +25,20 @@ export const postService: PostServiceContract = {
     deletePost: async (id) => {
         const deletedPost = await postRepository.deletePost(id)
         return deletedPost
+    },
+
+    addCommentToPost: async (postId, data) => {
+        const newComment = await postRepository.addCommentToPost(postId, data)
+        return newComment
+    },
+
+    addLikeToPost: async (postId, userId) => {
+        const likedPost = await postRepository.addLikeToPost(postId, userId)
+        return likedPost
+    },
+
+    deleteLikeFromPost: async (postId, userId) => {
+        const deletedLike = await postRepository.deleteLikeFromPost(postId, userId)
+        return deletedLike
     }
 }

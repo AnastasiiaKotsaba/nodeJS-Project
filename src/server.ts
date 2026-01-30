@@ -1,5 +1,6 @@
-import express from 'express' // для створення веб-сервера (додатку) на основі express
-import type { Express } from "express"
+import "dotenv/config"
+import cors from 'cors'
+import express, { type Express } from "express" // для створення веб-сервера (додатку) на основі express
 import postRouter from'./Post/post.router' // імпорт роутер для постів
 import tagRouter from'./Tag/tag.router' // імпорт роутер для тегів
 import userRouter from './User/user.router'
@@ -12,10 +13,22 @@ const PORT = 8000
 // Створюємо додаток express
 const app: Express = express()
 
+
+app.use(
+    cors({
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true
+    })
+)
+
 app.use(express.json()) // щоб сервер міг парсити json-файли
 app.use(postRouter) // підключаємо роутер для постів
 app.use(tagRouter) // підключаємо роутер для тегів
-app.use(userRouter) // підключаємо роутер для тегів
+app.use(userRouter) // підключаємо роутер для user
+
+
 
 
 // Створюємо обробник listen, який 'слухає' запити на сервер

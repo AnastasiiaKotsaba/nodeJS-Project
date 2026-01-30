@@ -22,6 +22,14 @@ export const postRepository: PostRepositoryContract = {
 
                 skip: skip !== undefined ? skip : 0,
                 take: take !== undefined ? take : 10,
+
+                include: {
+                    tags: {           // це TagsOnPosts
+                        include: {   // всередині кожного TagsOnPosts беремо сам тег
+                            tag: true
+                        }
+                    }
+                }
             })
 
             return posts
@@ -41,9 +49,23 @@ export const postRepository: PostRepositoryContract = {
         }
     },
 
-    getPostsById: async (id) => {
+    getPostsById: async (id, include) => {
+        console.log(include)
         try {
-            const neededPost = await client.post.findUnique({where: {id: id}})
+            const neededPost = await client.post.findUnique({
+                where: {id: id},
+                
+                include: {
+                    // ? —  якщо include не передано, тоді повертається undefined
+                    // Якщо умова true → виконуєтья те, що після &&
+                    // Якщо false → нічого не додається
+                    ...(include?.includes("comments") && { comments: true }),
+                    ...(include?.includes("likedBy") && { likedBy: true })
+                    // comments: true
+
+                }
+            });
+    
             return neededPost
 
         } catch (error){
@@ -123,5 +145,100 @@ export const postRepository: PostRepositoryContract = {
             }
             throw error
         }
+    },
+
+    addCommentToPost: async (postId, data) => {
+        try {
+            const newComment = await client.comment.create({
+                data: {
+                    body: data.body,
+                    post: {
+                        connect: { id: postId }
+                    },
+                    author: {
+                        connect: { id: data.authorId }
+                    }
+                }
+            })
+            return newComment
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2024") {
+                    console.log("Timed out fetching a new connection from the connection pool")
+                } else if (error.code === "P1013") {
+                    console.log("The provided database string is invalid")
+                } else if (error.code === "P2004") {
+                    console.log("Constraint failed")
+                } else if (error.code === "P2025") {
+                    console.log("Record to update/delete does not exist")
+                }
+            }
+            throw error
+        }
+    },
+
+    addLikeToPost: async (postId, userId) => {
+        try {
+            const likedPost = await client.postLike.create({    
+                data: {
+                    // connect: 
+                    // Під час створення нового поста (сторона many) підключає її 
+                    // до існуючого користувача (сторона one) за допомогою 'connect' 
+                    // та унікального ідентифікатора (наприклад, id або email) існуючого користувача.
+
+                    post: {
+                        connect: { id: postId }
+                    },
+
+                    user: {
+                        connect: { id: userId }
+                    }
+                }
+            })
+            return likedPost
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2024") {
+                    console.log("Timed out fetching a new connection from the connection pool")
+                } else if (error.code === "P1013") {
+                    console.log("The provided database string is invalid")
+                } else if (error.code === "P2004") {
+                    console.log("Constraint failed")
+                } else if (error.code === "P2025") {
+                    console.log("Record to update/delete does not exist")
+                }
+            }
+            throw error
+        }
+    },
+
+    deleteLikeFromPost: async (postId, userId) => {
+        try {
+            const deletedLike = await client.postLike.deleteMany({  
+                where: {
+                    postId: postId,
+                    userId: userId
+                }
+            })
+            // deletedLike (type) = Prisma.BatchPayload
+            // повертає об'єкт з функцією count (кількість задіяних рядків)
+            // Тому в типах вказуємо count: number
+            return deletedLike
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2024") {
+                    console.log("Timed out fetching a new connection from the connection pool")
+                } else if (error.code === "P1013") {
+                    console.log("The provided database string is invalid")
+                } else if (error.code === "P2004") {
+                    console.log("Constraint failed")
+                } else if (error.code === "P2025") {
+                    console.log("Record to update/delete does not exist")
+                }
+            }
+            throw error
+        }
     }
+
 }
+
